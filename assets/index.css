@@ -1,6 +1,6 @@
-#content{
-    display: block;
-}
+/* #content{
+    display: flex;
+} */
 
 #board{
     display: grid;
