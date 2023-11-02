@@ -1,0 +1,20 @@
+#content{
+    display: block;
+}
+
+#board{
+    display: grid;
+    grid-template-columns: auto auto auto auto auto auto;
+    width: 200px;
+    padding: 10px;
+}
+
+.letter{
+    text-align: center;
+    border: 1px solid black;
+}
+
+.letter:hover{
+    cursor: pointer;
+    background-color: rgba(128, 128, 128, 0.703);
+}
