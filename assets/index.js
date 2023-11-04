@@ -5,7 +5,6 @@ function createBoard() {
     let numRow = 0
     let numCol = 0
 
-    //create empty tiles
     for (let i=0; i<(numRows*numCols); i++){
         let letter = document.createElement('div')
         letter.className = `letter ${i}`
@@ -38,78 +37,111 @@ function createBoard() {
     }
 }
 
-async function generateBoard() {
+async function place_words() {
     const words = await getWords()
-    // console.log(words)
-
     createBoard()
-    let matrix = [[],[],[],[],[],[],[],[],[],[]]
     
     words.forEach((word) => {
-        let option = (word.length<numCols+1 ? 'horizontal' : 'vertical')
-        
-        if (word.length<7) {
-            const options = [option, 'diagonal']
-            option = options[Math.floor(Math.random()*2)]  
+        const options = ['vertical']
+        if (word.length<numCols+1) {
+            options.push('horizontal')
+            options.push('diagonal') 
         }
-        // console.log(word,option)
+        let option = options[Math.floor(Math.random()*3)] 
 
-        let empty = false
-        while (empty==false){
-            // console.log(empty,word)
-            // [row, col] -> [y, x]
+        let available = false
+        while (available==false){
+            let start_pos = find_start_pos(word, option)
+            let empty = check_placement(word,option,start_pos)
 
-            let start_pos
-            if (option=='horizontal'){
-                start_pos = [Math.floor(Math.random()*numRows), Math.floor(Math.random()*(numCols+1-word.length))]
-            } else if (option=='vertical'){
-                start_pos = [Math.floor(Math.random()*(numRows+1-word.length)), (Math.floor(Math.random()*numCols))]
-            } else {
-                // start_pos = [Math.floor(Math.random()*numRows), (Math.floor(Math.random()*numCols))]
-                let len = word.length
-                let combos = []
-                for (let r=0;r<(4+numCols-len);r++){
-                    combos.push([r,0])  
-                }
-                if (len<numCols) {
-                    combos.push([(numCols-2)+(numCols-len),0])
-                    for (let c=1;c<numCols-len;c++){
-                        combos.push([4+numCols-len,c])
-                    }
-                }
-                for (let c=numCols-len;c<(numCols-len)+1;c++){
-                    for (let r=0;r<(4+(numCols-len));r++){
-                        combos.push([r,c])
-                    }
-                }
-                // console.log(word,len,combos.sort())
-                start_pos=combos[Math.floor(Math.random()*(combos.length-1))]
-            }
-
-            // console.log(start_pos)
             let start_tile = document.querySelector(`[data-row="${start_pos[0]}"][data-column="${start_pos[1]}"]`)
-            if (start_tile.textContent==''){
-                // if (option=='horizontal'){ //=row +col
-                //     // console.log(word)
-                //     let valid = true
-                //     let x = start_pos[1]
-                //     while (valid==true && x<word.length+start_pos[1] && x<6){
-                //         valid = (matrix[start_pos[0]][x] == "")
-                //         console.log(x, valid, start_pos)
-                //         x++
-                //     }
-                //     empty = valid ? false : true
-                // } else {
-                //     empty = false
-                // }
-                start_tile.textContent = word[0]
+
+            if (empty){
+                // start_tile.textContent = word[0]
                 matrix[start_pos[0]][start_pos[1]] = word[0]
                 start_tile.style.backgroundColor = 'pink'
-                empty=true
-            }
+                available=true
+            }  
         }
     })
+    place_random_letters()
+}
 
+function find_start_pos(word, option){
+    let start_pos
+    if (option=='horizontal'){
+        start_pos = [Math.floor(Math.random()*numRows), Math.floor(Math.random()*(numCols+1-word.length))]
+    } else if (option=='vertical'){
+        start_pos = [Math.floor(Math.random()*(numRows+1-word.length)), (Math.floor(Math.random()*numCols))]
+    } else {
+        let len = word.length
+        let combos = []
+        if (len<numCols) {
+            combos.push([(numCols-2)+(numCols-len),0])
+            for (let c=1;c<numCols-len;c++){
+                if (combos.indexOf([4+numCols-len,c])==-1){
+                    combos.push([4+numCols-len,c])  
+                } 
+            }
+        }
+        for (let c=0;c<(numCols-len)+1;c++){
+            for (let r=0;r<(4+(numCols-len)+1);r++){
+                if (combos.indexOf([r,c]) == -1){combos.push([r,c])}
+            }
+        } 
+        start_pos=combos[Math.floor(Math.random()*(combos.length-1))]
+    }
+    
+    return start_pos
+}
+
+function check_placement(word,option,start_pos){
+
+    let start_tile = document.querySelector(`[data-row="${start_pos[0]}"][data-column="${start_pos[1]}"]`)
+
+    let empty = true //tile is empty
+    if (start_tile.textContent == ""){
+        //[row,col] = [y,x]
+        if (option == "horizontal"){
+            console.log(start_tile)
+            console.log(word,option,start_pos)
+
+            let x = start_pos[1]
+            let y = start_pos[0]
+
+            while (empty==true && x<numCols-1 && x<numCols-start_pos[1]+1){
+                x++
+                let next_tile = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
+                empty = (next_tile.textContent=="") ? true : false
+                console.log(next_tile,next_tile.textContent,empty)
+            }
+            //if available ?
+            if (empty){
+                console.log('empty')
+                let i = 0
+                console.log(word,word.length)
+                for (let x=start_pos[1];x<word.length+start_pos[1];x++){
+                    console.log(x)
+                    let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
+                    next.style.backgroundColor = 'yellow'
+                    next.textContent = word[i]
+                    console.log(next,word[i])
+                    matrix[y][x] = word[i]
+                    i++
+                }
+            }
+        }
+        else if (option == 'vertical'){
+
+        }
+        // return empty
+    } else {
+        empty = false
+    }
+    return true
+}
+
+function place_random_letters() {
     const alphabet = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z']
     let numCol = 0
     let numRow = 0
@@ -123,7 +155,6 @@ async function generateBoard() {
         } else {
             rand = letter.textContent
         }
-
         if (letter.textContent!==""){letter.style.padding = '0px'}
 
         //matrix for 6 cols 10 rows
@@ -135,7 +166,6 @@ async function generateBoard() {
             row.push(rand)
             numCol++
         }
-        
         if (row.length==numCols-1){
             matrix[numRow] = row
         } else if (row.length==numCols){
@@ -143,8 +173,7 @@ async function generateBoard() {
             numCol=0
         }
     }
-
-    // console.log(matrix)
+    console.log(matrix)
 }
 
 async function getWords() {
@@ -186,8 +215,9 @@ const words_list = document.getElementById('words-list')
 
 const numRows = 10
 const numCols = 6
+const matrix = [[],[],[],[],[],[],[],[],[],[]]
 
 gen_btn.addEventListener('click', () => {
-    generateBoard()
+    place_words()
 })
-generateBoard()
+place_words()
