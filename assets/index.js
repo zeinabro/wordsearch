@@ -48,14 +48,16 @@ async function generateBoard() {
     words.forEach((word) => {
         let option = (word.length<numCols+1 ? 'horizontal' : 'vertical')
         
-        const options = [option, 'diagonal']
-        option = options[Math.floor(Math.random()*2)]
-        console.log(word,option)
+        if (word.length<7) {
+            const options = [option, 'diagonal']
+            option = options[Math.floor(Math.random()*2)]  
+        }
+        // console.log(word,option)
 
         let empty = false
         while (empty==false){
             // console.log(empty,word)
-            // [row, col] -> y, x
+            // [row, col] -> [y, x]
 
             let start_pos
             if (option=='horizontal'){
@@ -63,10 +65,28 @@ async function generateBoard() {
             } else if (option=='vertical'){
                 start_pos = [Math.floor(Math.random()*(numRows+1-word.length)), (Math.floor(Math.random()*numCols))]
             } else {
-                start_pos = [Math.floor(Math.random()*numRows), (Math.floor(Math.random()*numCols))]
+                // start_pos = [Math.floor(Math.random()*numRows), (Math.floor(Math.random()*numCols))]
+                let len = word.length
+                let combos = []
+                for (let r=0;r<(4+numCols-len);r++){
+                    combos.push([r,0])  
+                }
+                if (len<numCols) {
+                    combos.push([(numCols-2)+(numCols-len),0])
+                    for (let c=1;c<numCols-len;c++){
+                        combos.push([4+numCols-len,c])
+                    }
+                }
+                for (let c=numCols-len;c<(numCols-len)+1;c++){
+                    for (let r=0;r<(4+(numCols-len));r++){
+                        combos.push([r,c])
+                    }
+                }
+                // console.log(word,len,combos.sort())
+                start_pos=combos[Math.floor(Math.random()*(combos.length-1))]
             }
 
-            console.log(start_pos)
+            // console.log(start_pos)
             let start_tile = document.querySelector(`[data-row="${start_pos[0]}"][data-column="${start_pos[1]}"]`)
             if (start_tile.textContent==''){
                 // if (option=='horizontal'){ //=row +col
@@ -132,7 +152,7 @@ async function getWords() {
 
     words_list.innerHTML = ''
 
-    let topic = 'intelligent'
+    let topic = 'dog'
     let max = 5
 
     const resp =  await fetch(`https://api.datamuse.com/words?ml=${topic}&max=${max+5}`)
@@ -146,7 +166,6 @@ async function getWords() {
     while (num_words < 5 && i<10){
         const word = data[i].word
         if (!word.includes(' ') && !word.includes('-') && word.length<numRows){
-            console.log(word)
             const word_item = document.createElement('li')
             word_item.className = `word ${i}`
             word_item.textContent = word
