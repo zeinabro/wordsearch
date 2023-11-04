@@ -6,7 +6,7 @@ function createBoard() {
     let numCol = 0
 
     //create empty tiles
-    for (let i=0; i<60; i++){
+    for (let i=0; i<(numRows*numCols); i++){
         let letter = document.createElement('div')
         letter.className = `letter ${i}`
         if (letter.textContent==""){letter.style.padding = '9px'}
@@ -14,14 +14,14 @@ function createBoard() {
             letter.style.backgroundColor = 'grey'
         })
 
-        if (i == 0 || i % 6 == 0) {
+        if (i == 0 || i % numCols == 0) {
             rowCount = [1]
             letter.classList.add(`row${numRow}`, `col${numCol}`)
             letter.dataset.row = numRow
             letter.dataset.column = numCol
             numCol++
         } 
-        else if (i % 6 > 0) {
+        else if (i % numCols > 0) {
             rowCount.push(1)
             letter.classList.add( `row${numRow}`, `col${numCol}`)
             letter.dataset.row = numRow
@@ -29,7 +29,7 @@ function createBoard() {
             numCol++
         }
         
-        if (rowCount.length==6){
+        if (rowCount.length==numCols){
             numRow++
             numCol=0
         }
@@ -46,25 +46,26 @@ async function generateBoard() {
     let matrix = [[],[],[],[],[],[],[],[],[],[]]
     
     words.forEach((word) => {
-        let option = (word.length<7 ? 'horizontal' : 'vertical')
+        let option = (word.length<numCols+1 ? 'horizontal' : 'vertical')
         
         const options = [option, 'diagonal']
         option = options[Math.floor(Math.random()*2)]
         console.log(word,option)
 
-        let empty = true
-        while (empty==true){
+        let empty = false
+        while (empty==false){
             // console.log(empty,word)
             // [row, col] -> y, x
-            // start pos according to word length
+
             let start_pos
             if (option=='horizontal'){
-                console.log('hor')
-                start_pos = [Math.floor(Math.random()*10), Math.floor(Math.random()*(6-word.length))]
+                start_pos = [Math.floor(Math.random()*numRows), Math.floor(Math.random()*(numCols+1-word.length))]
+            } else if (option=='vertical'){
+                start_pos = [Math.floor(Math.random()*(numRows+1-word.length)), (Math.floor(Math.random()*numCols))]
             } else {
-                start_pos = [(Math.floor(Math.random()*10)), (Math.floor(Math.random()*6))]
+                start_pos = [Math.floor(Math.random()*numRows), (Math.floor(Math.random()*numCols))]
             }
-            // let start_pos = [(Math.floor(Math.random()*10)), (Math.floor(Math.random()*6))]
+
             console.log(start_pos)
             let start_tile = document.querySelector(`[data-row="${start_pos[0]}"][data-column="${start_pos[1]}"]`)
             if (start_tile.textContent==''){
@@ -84,7 +85,7 @@ async function generateBoard() {
                 start_tile.textContent = word[0]
                 matrix[start_pos[0]][start_pos[1]] = word[0]
                 start_tile.style.backgroundColor = 'pink'
-                empty=false
+                empty=true
             }
         }
     })
@@ -94,7 +95,7 @@ async function generateBoard() {
     let numRow = 0
     let row
 
-    for (let i=0; i<60; i++){
+    for (let i=0; i<(numRows*numCols); i++){
         let rand = alphabet[Math.floor(Math.random()*26)]
         let letter = document.getElementsByClassName(i)[0]
         if (letter.textContent == '') {
@@ -106,18 +107,18 @@ async function generateBoard() {
         if (letter.textContent!==""){letter.style.padding = '0px'}
 
         //matrix for 6 cols 10 rows
-        if (i == 0 || i % 6 == 0) {
+        if (i == 0 || i % numCols == 0) {
             row = [rand]
             numCol++
         }
-        else if (i % 6 > 0) {
+        else if (i % numCols > 0) {
             row.push(rand)
             numCol++
         }
         
-        if (row.length==5){
+        if (row.length==numCols-1){
             matrix[numRow] = row
-        } else if (row.length==6){
+        } else if (row.length==numCols){
             numRow++
             numCol=0
         }
@@ -142,26 +143,30 @@ async function getWords() {
     let i = 0
     let words = []
 
-    while (num_words < 5){
+    while (num_words < 5 && i<10){
         const word = data[i].word
-        if (!word.includes(' ') && !word.includes('-') && word.length<10){
+        if (!word.includes(' ') && !word.includes('-') && word.length<numRows){
+            console.log(word)
             const word_item = document.createElement('li')
             word_item.className = `word ${i}`
             word_item.textContent = word
             words_list.appendChild(word_item)
             words_length += (word.length)
-            num_words++ 
+            num_words++
             words.push(word.toUpperCase())           
         }
-        i++
+        i++  
     }
-    // console.log(words_length)
+    // console.log(words)
     return words
 }
 
 const board = document.getElementById('board')
 const gen_btn = document.getElementById('gen-btn')
 const words_list = document.getElementById('words-list')
+
+const numRows = 10
+const numCols = 6
 
 gen_btn.addEventListener('click', () => {
     generateBoard()
