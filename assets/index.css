@@ -1,3 +1,7 @@
+:root{
+    --cols: '----'
+}
+
 /* #content{
     display: flex;
 } */
@@ -5,13 +9,15 @@
 #board{
     display: grid;
     grid-template-columns: auto auto auto auto auto auto;
+    grid-template-columns: var(--cols);
     width: 200px;
-    padding: 10px;
+    border-radius: 4px;
 }
 
 .letter{
     text-align: center;
     border: 1px solid black;
+    padding: 5px;
 }
 
 .letter:hover{
