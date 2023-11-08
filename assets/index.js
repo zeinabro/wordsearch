@@ -115,7 +115,7 @@ async function place_words() {
         }
     })
     for (let i=0;i<removed_words.length;i++){
-        words.splice(i,1)
+        words.splice(removed_words[i],1)
     }
     place_words_list(words)
     place_random_letters()
@@ -179,7 +179,7 @@ function check_placement(word,option,start_pos){
 
     //0 = forwards, 1 = backwards
     let direction  = Math.floor(Math.random()*2)
-    
+
     if (option == "horizontal"){
         while (empty==true && x<start_pos[1]+word.length-1){
             x++

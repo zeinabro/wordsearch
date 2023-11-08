@@ -2,16 +2,29 @@
     --cols: '----'
 }
 
-/* #content{
+.title{
+    text-align: center;
+    padding: 10px;
+}
+
+#content{
     display: flex;
-} */
+    justify-content: center;
+}
 
 #board{
     display: grid;
     grid-template-columns: auto auto auto auto auto auto;
     grid-template-columns: var(--cols);
-    width: 200px;
+    width: max-content;
     border-radius: 4px;
+    /* margin: 0 auto; */
+}
+
+.gen-btn-container{
+    padding: 10px;
+    display: flex;
+    justify-content: center;
 }
 
 .letter{
