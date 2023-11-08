@@ -176,18 +176,19 @@ function check_placement(word,option,start_pos){
     let empty = true
     let x = start_pos[1]
     let y = start_pos[0]
+
     //0 = forwards, 1 = backwards
     let direction  = Math.floor(Math.random()*2)
     let start,end
+    if (direction == 0 && (option=='horizontal' || option=='vertical')){
+        start = start_pos[(option=='vertical' ? 0 : 1)]
+        end = word.length+start_pos[(option=='vertical' ? 0 : 1)]
+    } else if (direction == 1) {
+        start = word.length+start_pos[(option=='vertical' ? 0 : 1)]-1
+        end = start_pos[(option=='vertical' ? 0 : 1)]-1
+    }
 
     if (option == "horizontal"){
-        if (direction == 0){
-            start = start_pos[1]
-            end = word.length+start_pos[1]
-        } else if (direction == 1) {
-            start = word.length+start_pos[1]-1
-            end = start_pos[1]-1
-        }
         while (empty==true && x<start_pos[1]+word.length-1){
             x++
             let next_tile = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
@@ -213,10 +214,10 @@ function check_placement(word,option,start_pos){
         }
         if (empty){
             let i = 0
-            for (let y=start_pos[0];y<word.length+start_pos[0];y++){
+            for (let y=start;(direction==0 ? y<end : y>end);(direction==0 ? y++ : y--)){
                 let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
-                // console.log(next)
-                next.style.backgroundColor = 'pink'
+
+                next.style.backgroundColor = (direction==0 ? 'pink' : 'plum' )
                 next.textContent = word[i]
                 matrix[y][x] = word[i]
                 i++
