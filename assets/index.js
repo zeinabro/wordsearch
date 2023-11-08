@@ -179,15 +179,7 @@ function check_placement(word,option,start_pos){
 
     //0 = forwards, 1 = backwards
     let direction  = Math.floor(Math.random()*2)
-    let start,end
-    if (direction == 0 && (option=='horizontal' || option=='vertical')){
-        start = start_pos[(option=='vertical' ? 0 : 1)]
-        end = word.length+start_pos[(option=='vertical' ? 0 : 1)]
-    } else if (direction == 1) {
-        start = word.length+start_pos[(option=='vertical' ? 0 : 1)]-1
-        end = start_pos[(option=='vertical' ? 0 : 1)]-1
-    }
-
+    
     if (option == "horizontal"){
         while (empty==true && x<start_pos[1]+word.length-1){
             x++
@@ -195,13 +187,13 @@ function check_placement(word,option,start_pos){
             empty = (next_tile && next_tile.textContent=="") ? true : false
         }
         if (empty){
-            let i = 0
-            for (let x=start;(direction==0 ? x<end : x>end);(direction==0 ? x++ : x--)){
+            let i = (direction==0 ? 0 : word.length-1)
+            for (let x=start_pos[1];x<word.length+start_pos[1];x++){
                 let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
-                next.style.backgroundColor = direction==1 ? 'yellow' : 'grey'
+                next.style.backgroundColor = direction==0 ? 'yellow' : 'grey'
                 next.textContent = word[i]
                 matrix[y][x] = word[i]
-                i++
+                direction==0 ? i++ : i--
             }
         }
     }
@@ -213,40 +205,35 @@ function check_placement(word,option,start_pos){
             empty = (next_tile && next_tile.textContent=="") ? true : false
         }
         if (empty){
-            let i = 0
-            for (let y=start;(direction==0 ? y<end : y>end);(direction==0 ? y++ : y--)){
+            let i = (direction==0 ? 0 : word.length-1)
+            for (let y=start_pos[0];y<word.length+start_pos[0];y++) {
                 let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
 
                 next.style.backgroundColor = (direction==0 ? 'pink' : 'plum' )
                 next.textContent = word[i]
                 matrix[y][x] = word[i]
-                i++
+                direction==0 ? i++ : i--
             }
         }
     }
     else if (option == 'diagonal'){
         //[row,col] -> [y,x]
-        //&& x<numCols-1 && y<numRows-1
+
         while (empty==true && x<start_pos[1]+word.length-1 && y<start_pos[0]+word.length-1){
             y++
             x++
             let next_tile = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
-            // console.log(next_tile,y,x)
             empty = (next_tile && next_tile.textContent=="") ? true : false
-            // if (empty==false){
-            //     console.log('not empty',next_tile.textContent)
-            // }
         }
         if (empty){
-            let i = 0
+            let i = (direction==0 ? 0 : word.length-1)
             let x = start_pos[1]
             for (let y=start_pos[0];y<word.length+start_pos[0];y++) {
                 let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
-                // console.log(next)
-                next.style.backgroundColor='green'
+                next.style.backgroundColor=(direction==0 ? 'green' : 'orange')
                 next.textContent = word[i]
                 matrix[y][x] = word[i]
-                i++
+                direction==0 ? i++ : i--
                 x++
             }
         }
