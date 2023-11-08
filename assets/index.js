@@ -1,58 +1,17 @@
-// function create_board() {
-//     board.innerHTML = ''
-
-//     let rowCount
-//     let numRow = 0
-//     let numCol = 0
-
-//     for (let i=0; i<(numRows*numCols); i++){
-//         let letter = document.createElement('div')
-//         letter.className = `letter ${i}`
-//         // if (letter.textContent==""){letter.style.padding = '9px'}
-//         letter.addEventListener('click', () => {
-//             letter.style.backgroundColor = 'grey'
-//         })
-
-//         if (i == 0 || i % numCols == 0) {
-//             rowCount = [1]
-//             letter.classList.add(`row${numRow}`, `col${numCol}`)
-//             letter.dataset.row = numRow
-//             letter.dataset.column = numCol
-//             numCol++
-//         } 
-//         else if (i % numCols > 0) {
-//             rowCount.push(1)
-//             letter.classList.add( `row${numRow}`, `col${numCol}`)
-//             letter.dataset.row = numRow
-//             letter.dataset.column = numCol
-//             numCol++
-//         }
-        
-//         if (rowCount.length==numCols){
-//             numRow++
-//             numCol=0
-//         }
-
-//         board.appendChild(letter)
-//     }
-// }
-
 function create_table() {
     board.innerHTML = ''
 
     let rowCount
     let numRow = 0
     let numCol = 0
-    //table tr td
     let table = document.createElement('table')
     let tr = document.createElement('tr')
+
     for (let i=0; i<(numRows*numCols); i++){
         let letter = document.createElement('td')
         letter.className = `letter ${i}`
-        // if (letter.textContent==""){letter.style.padding = '9px'}
         letter.addEventListener('click', () => {
             letter.classList.toggle('clicked')
-            // letter.style.backgroundColor = 'grey'
         })
 
         if (i == 0 || i % numCols == 0) {
@@ -69,13 +28,10 @@ function create_table() {
             letter.dataset.row = numRow
             letter.dataset.column = numCol
             numCol++
-            
-            // tr=document.createElement('tr')
         }
         if (rowCount.length==numCols){
             numRow++
             table.appendChild(tr)
-            // tr=document.createElement('tr')
             numCol=0
         }
         tr.appendChild(letter)
@@ -85,7 +41,6 @@ function create_table() {
 
 async function place_words() {
     const words = await get_words()
-    // create_board()
     create_table()
     let removed_words = []
     words.forEach((word) => {
@@ -122,23 +77,19 @@ async function place_words() {
 }
 
 function find_start_pos(word, option){
-    // console.log(matrix)
     let start_pos                           
     let empty = false
-    // console.log(word,option)
     while (empty==false){
         if (option=='horizontal'){
             start_pos = [Math.floor(Math.random()*numRows), Math.floor(Math.random()*(numCols+1-word.length))]
         } else if (option=='vertical'){
             start_pos = [Math.floor(Math.random()*(numRows+1-word.length)), (Math.floor(Math.random()*numCols))]
-            // console.log('vertical start pos ',start_pos)
         } else if (option=='diagonal'){
             let len = word.length
             let combos = []
             if (len<numCols) {
                 combos.push([(numCols-2)+(numCols-len),0])
                 for (let c=1;c<numCols-len;c++){
-                    //4
                     if (combos.indexOf([(numCols-2)+numCols-len,c])==-1){
                         combos.push([(numCols-2)+numCols-len,c])  
                     } 
@@ -151,24 +102,15 @@ function find_start_pos(word, option){
             } 
             start_pos=combos[Math.floor(Math.random()*(combos.length-1))]
         } else {
-            // console.log('no option?')
             empty = true
         }
-        // console.log(word," start_pos ",start_pos)
         
         let start_tile = document.querySelector(`[data-row="${start_pos[0]}"][data-column="${start_pos[1]}"]`)
 
-        // console.log('start tile ', start_tile, start_tile.textContent)
-
         if (start_tile && start_tile.textContent == ""){
             empty=true
-        } else {
-            // console.log('not empty in fsp ',empty)
         }
-        // empty=true
     }
-    // console.log('in fps empty is ',empty)
-    // console.log(start_pos)
     return start_pos
 }
 
@@ -176,8 +118,6 @@ function check_placement(word,option,start_pos){
     let empty = true
     let x = start_pos[1]
     let y = start_pos[0]
-
-    //0 = forwards, 1 = backwards
     let direction  = Math.floor(Math.random()*2)
 
     if (option == "horizontal"){
@@ -198,7 +138,6 @@ function check_placement(word,option,start_pos){
         }
     }
     else if (option == 'vertical'){
-        //same col, row++ ->
         while (empty==true && y<start_pos[0]+word.length-1){
             y++
             let next_tile = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
@@ -217,8 +156,6 @@ function check_placement(word,option,start_pos){
         }
     }
     else if (option == 'diagonal'){
-        //[row,col] -> [y,x]
-
         while (empty==true && x<start_pos[1]+word.length-1 && y<start_pos[0]+word.length-1){
             y++
             x++
@@ -250,12 +187,12 @@ function place_random_letters() {
     for (let i=0; i<(numRows*numCols); i++){
         let rand = alphabet[Math.floor(Math.random()*26)]
         let letter = document.getElementsByClassName(i)[0]
+    
         if (letter.textContent == '') {
-            letter.textContent = rand //rand
+            letter.textContent = rand
         } else {
             rand = letter.textContent
         }
-        // if (letter.textContent!==""){letter.style.padding = '0px'}
 
         if (i == 0 || i % numCols == 0) {
             row = [rand]
@@ -331,8 +268,6 @@ for (let x=0;x<numRows;x++){
 }
 
 gen_btn.addEventListener('click', () => {
-    // get_words()
     place_words()
 })
-// get_words()
 place_words()
