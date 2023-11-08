@@ -96,29 +96,23 @@ async function place_words() {
             options.push('diagonal') 
         }
         let len = options.length
-        // let option = options[Math.floor(Math.random()*len)] 
         let available = false
+
         while (available==false){
             let option = options[Math.floor(Math.random()*len)]
             let start_pos = find_start_pos(word, option)
             let empty = check_placement(word,option,start_pos)
-            // console.log('empty placement',empty)
 
             if (empty==true){
-                console.log(word)
                 available=true
             } else if (counter>50){
                 let index = words.indexOf(word)
                 removed_words.push(index)
-                // words.splice(index,1)
-                console.log(words)
                 available=true
             } else if (empty==false){
-                console.log(word,counter)
                 counter++
             }
         }
-        // console.log('counter ',counter)
     })
     for (let i=0;i<removed_words.length;i++){
         words.splice(i,1)
@@ -180,13 +174,20 @@ function find_start_pos(word, option){
 
 function check_placement(word,option,start_pos){
     let empty = true
-
-    //backwards from last pos to start p0s
-    //-> chosen randomly
-
     let x = start_pos[1]
     let y = start_pos[0]
+    //0 = forwards, 1 = backwards
+    let direction  = Math.floor(Math.random()*2)
+    let start,end
+
     if (option == "horizontal"){
+        if (direction == 0){
+            start = start_pos[1]
+            end = word.length+start_pos[1]
+        } else if (direction == 1) {
+            start = word.length+start_pos[1]-1
+            end = start_pos[1]-1
+        }
         while (empty==true && x<start_pos[1]+word.length-1){
             x++
             let next_tile = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
@@ -194,10 +195,9 @@ function check_placement(word,option,start_pos){
         }
         if (empty){
             let i = 0
-            for (let x=start_pos[1];x<word.length+start_pos[1];x++){
+            for (let x=start;(direction==0 ? x<end : x>end);(direction==0 ? x++ : x--)){
                 let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
-                // console.log(next)
-                next.style.backgroundColor = 'yellow'
+                next.style.backgroundColor = direction==1 ? 'yellow' : 'grey'
                 next.textContent = word[i]
                 matrix[y][x] = word[i]
                 i++
@@ -250,7 +250,6 @@ function check_placement(word,option,start_pos){
             }
         }
     }
-    
     return empty
 }
 
@@ -314,6 +313,7 @@ async function get_words() {
 }
 
 function place_words_list(spliced_words) {
+    console.log(spliced_words)
     words_list.innerHTML = ''
     spliced_words.forEach((word,i) => {
         const word_item = document.createElement('li')
