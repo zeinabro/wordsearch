@@ -1,16 +1,58 @@
-function create_board() {
+// function create_board() {
+//     board.innerHTML = ''
+
+//     let rowCount
+//     let numRow = 0
+//     let numCol = 0
+
+//     for (let i=0; i<(numRows*numCols); i++){
+//         let letter = document.createElement('div')
+//         letter.className = `letter ${i}`
+//         // if (letter.textContent==""){letter.style.padding = '9px'}
+//         letter.addEventListener('click', () => {
+//             letter.style.backgroundColor = 'grey'
+//         })
+
+//         if (i == 0 || i % numCols == 0) {
+//             rowCount = [1]
+//             letter.classList.add(`row${numRow}`, `col${numCol}`)
+//             letter.dataset.row = numRow
+//             letter.dataset.column = numCol
+//             numCol++
+//         } 
+//         else if (i % numCols > 0) {
+//             rowCount.push(1)
+//             letter.classList.add( `row${numRow}`, `col${numCol}`)
+//             letter.dataset.row = numRow
+//             letter.dataset.column = numCol
+//             numCol++
+//         }
+        
+//         if (rowCount.length==numCols){
+//             numRow++
+//             numCol=0
+//         }
+
+//         board.appendChild(letter)
+//     }
+// }
+
+function create_table() {
     board.innerHTML = ''
 
     let rowCount
     let numRow = 0
     let numCol = 0
-
+    //table tr td
+    let table = document.createElement('table')
+    let tr = document.createElement('tr')
     for (let i=0; i<(numRows*numCols); i++){
-        let letter = document.createElement('div')
+        let letter = document.createElement('td')
         letter.className = `letter ${i}`
         // if (letter.textContent==""){letter.style.padding = '9px'}
         letter.addEventListener('click', () => {
-            letter.style.backgroundColor = 'grey'
+            letter.classList.toggle('clicked')
+            // letter.style.backgroundColor = 'grey'
         })
 
         if (i == 0 || i % numCols == 0) {
@@ -19,6 +61,7 @@ function create_board() {
             letter.dataset.row = numRow
             letter.dataset.column = numCol
             numCol++
+            tr=document.createElement('tr')
         } 
         else if (i % numCols > 0) {
             rowCount.push(1)
@@ -26,21 +69,25 @@ function create_board() {
             letter.dataset.row = numRow
             letter.dataset.column = numCol
             numCol++
+            
+            // tr=document.createElement('tr')
         }
-        
         if (rowCount.length==numCols){
             numRow++
+            table.appendChild(tr)
+            // tr=document.createElement('tr')
             numCol=0
         }
-
-        board.appendChild(letter)
+        tr.appendChild(letter)
     }
+    board.appendChild(table)
 }
 
 async function place_words() {
     const words = await get_words()
-    create_board()
-    
+    // create_board()
+    create_table()
+    let removed_words = []
     words.forEach((word) => {
         let counter = 0
         const options = ['vertical']
@@ -58,19 +105,25 @@ async function place_words() {
             // console.log('empty placement',empty)
 
             if (empty==true){
+                console.log(word)
                 available=true
             } else if (counter>50){
                 let index = words.indexOf(word)
-                let word_el = document.querySelector(`.word, .${index}`)
-                console.log(word_el)
-                word_el.textContent= ""
+                removed_words.push(index)
+                // words.splice(index,1)
+                console.log(words)
                 available=true
             } else if (empty==false){
+                console.log(word,counter)
                 counter++
             }
         }
         // console.log('counter ',counter)
     })
+    for (let i=0;i<removed_words.length;i++){
+        words.splice(i,1)
+    }
+    place_words_list(words)
     place_random_letters()
 }
 
@@ -126,82 +179,78 @@ function find_start_pos(word, option){
 }
 
 function check_placement(word,option,start_pos){
+    let empty = true
 
-    let start_tile = document.querySelector(`[data-row="${start_pos[0]}"][data-column="${start_pos[1]}"]`)
+    //backwards from last pos to start p0s
+    //-> chosen randomly
 
-    let empty = true //tile is empty
-    // if (start_tile.textContent == ""){
+    let x = start_pos[1]
+    let y = start_pos[0]
+    if (option == "horizontal"){
+        while (empty==true && x<start_pos[1]+word.length-1){
+            x++
+            let next_tile = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
+            empty = (next_tile && next_tile.textContent=="") ? true : false
+        }
+        if (empty){
+            let i = 0
+            for (let x=start_pos[1];x<word.length+start_pos[1];x++){
+                let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
+                // console.log(next)
+                next.style.backgroundColor = 'yellow'
+                next.textContent = word[i]
+                matrix[y][x] = word[i]
+                i++
+            }
+        }
+    }
+    else if (option == 'vertical'){
+        //same col, row++ ->
+        while (empty==true && y<start_pos[0]+word.length-1){
+            y++
+            let next_tile = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
+            empty = (next_tile && next_tile.textContent=="") ? true : false
+        }
+        if (empty){
+            let i = 0
+            for (let y=start_pos[0];y<word.length+start_pos[0];y++){
+                let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
+                // console.log(next)
+                next.style.backgroundColor = 'pink'
+                next.textContent = word[i]
+                matrix[y][x] = word[i]
+                i++
+            }
+        }
+    }
+    else if (option == 'diagonal'){
         //[row,col] -> [y,x]
-        let x = start_pos[1]
-        let y = start_pos[0]
-        if (option == "horizontal"){
-            while (empty==true && x<start_pos[1]+word.length-1){
+        //&& x<numCols-1 && y<numRows-1
+        while (empty==true && x<start_pos[1]+word.length-1 && y<start_pos[0]+word.length-1){
+            y++
+            x++
+            let next_tile = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
+            // console.log(next_tile,y,x)
+            empty = (next_tile && next_tile.textContent=="") ? true : false
+            // if (empty==false){
+            //     console.log('not empty',next_tile.textContent)
+            // }
+        }
+        if (empty){
+            let i = 0
+            let x = start_pos[1]
+            for (let y=start_pos[0];y<word.length+start_pos[0];y++) {
+                let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
+                // console.log(next)
+                next.style.backgroundColor='green'
+                next.textContent = word[i]
+                matrix[y][x] = word[i]
+                i++
                 x++
-                let next_tile = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
-                empty = (next_tile && next_tile.textContent=="") ? true : false
-            }
-            if (empty){
-                let i = 0
-                for (let x=start_pos[1];x<word.length+start_pos[1];x++){
-                    let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
-                    // console.log(next)
-                    next.style.backgroundColor = 'yellow'
-                    next.textContent = word[i]
-                    matrix[y][x] = word[i]
-                    i++
-                }
             }
         }
-        else if (option == 'vertical'){
-            //same col, row++ ->
-            while (empty==true && y<start_pos[0]+word.length-1){
-                y++
-                let next_tile = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
-                empty = (next_tile && next_tile.textContent=="") ? true : false
-            }
-            if (empty){
-                let i = 0
-                for (let y=start_pos[0];y<word.length+start_pos[0];y++){
-                    let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
-                    // console.log(next)
-                    next.style.backgroundColor = 'pink'
-                    next.textContent = word[i]
-                    matrix[y][x] = word[i]
-                    i++
-                }
-            }
-        }
-        else if (option == 'diagonal'){
-            //[row,col] -> [y,x]
-            //&& x<numCols-1 && y<numRows-1
-            while (empty==true && x<start_pos[1]+word.length-1 && y<start_pos[0]+word.length-1){
-                y++
-                x++
-                let next_tile = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
-                // console.log(next_tile,y,x)
-                empty = (next_tile && next_tile.textContent=="") ? true : false
-                // if (empty==false){
-                //     console.log('not empty',next_tile.textContent)
-                // }
-            }
-            if (empty){
-                let i = 0
-                let x = start_pos[1]
-                for (let y=start_pos[0];y<word.length+start_pos[0];y++) {
-                    let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
-                    // console.log(next)
-                    next.style.backgroundColor='green'
-                    next.textContent = word[i]
-                    matrix[y][x] = word[i]
-                    i++
-                    x++
-                }
-            }
-        }
-    // } else {
-    //     console.log('else')
-    //     empty = false
-    // }
+    }
+    
     return empty
 }
 
@@ -242,10 +291,7 @@ function place_random_letters() {
 async function get_words() {
     //https://api.datamuse.com/words
 
-    words_list.innerHTML = ''
-
     let topic = 'intelligent'
-    let max = 5
 
     const resp =  await fetch(`https://api.datamuse.com/words?ml=${topic}`)
     const data = await resp.json()
@@ -255,29 +301,34 @@ async function get_words() {
     let i = 0
     let words = []
 
-    while (num_words < numCols && i<data.length){
+    while (num_words < (numCols+numRows)/2 && i<data.length){
         const word = data[i].word
-        if (!word.includes(' ') && !word.includes('-') && word.length<numRows-3){
-            const word_item = document.createElement('li')
-            word_item.className = `word ${i}`
-            word_item.textContent = word
-            words_list.appendChild(word_item)
+        if (!word.includes(' ') && !word.includes('-') && word.length<numCols && word.length<numRows){
             words_length += (word.length)
             num_words++
             words.push(word.toUpperCase())           
         }
         i++  
     }
-    // console.log(words)
     return words
+}
+
+function place_words_list(spliced_words) {
+    words_list.innerHTML = ''
+    spliced_words.forEach((word,i) => {
+        const word_item = document.createElement('li')
+        word_item.className = `word ${i}`
+        word_item.textContent = word.toLowerCase()
+        words_list.appendChild(word_item)
+    })
 }
 
 const board = document.getElementById('board')
 const gen_btn = document.getElementById('gen-btn')
 const words_list = document.getElementById('words-list')
 
-const numRows = 21
-const numCols = 20
+const numRows = 10
+const numCols = 10
 
 document.documentElement.style.setProperty('--cols',`${'auto '.repeat(numCols)}`)
 

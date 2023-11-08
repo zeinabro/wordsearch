@@ -17,10 +17,15 @@
 .letter{
     text-align: center;
     border: 1px solid black;
+    border-radius: 5px;
     padding: 5px;
 }
 
 .letter:hover{
     cursor: pointer;
     background-color: rgba(128, 128, 128, 0.703);
+}
+
+.clicked {
+    background-color: grey;
 }
