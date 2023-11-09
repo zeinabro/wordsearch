@@ -6,17 +6,26 @@ function create_table() {
     let numCol = 0
     let table = document.createElement('table')
     let tr = document.createElement('tr')
-
+    letters_chosen = []
     for (let i=0; i<(numRows*numCols); i++){
         let letter = document.createElement('td')
         letter.className = `letter ${i}`
+
         letter.addEventListener('click', () => {
-            letter.classList.toggle('clicked')
+            letter.classList.toggle('selected')
+            if (letter.classList.contains('selected')){
+                letters_chosen.push(letter)
+            } else {
+                letters_chosen.splice(letters_chosen.indexOf(letter),1)
+            }
+            if (letters_chosen.length>0){
+                letters_chosen = check_letters(letters_chosen)
+            }
         })
 
         if (i == 0 || i % numCols == 0) {
             rowCount = [1]
-            letter.classList.add(`row${numRow}`, `col${numCol}`)
+            // letter.classList.add(`row${numRow}`, `col${numCol}`)
             letter.dataset.row = numRow
             letter.dataset.column = numCol
             numCol++
@@ -24,7 +33,7 @@ function create_table() {
         } 
         else if (i % numCols > 0) {
             rowCount.push(1)
-            letter.classList.add( `row${numRow}`, `col${numCol}`)
+            // letter.classList.add( `row${numRow}`, `col${numCol}`)
             letter.dataset.row = numRow
             letter.dataset.column = numCol
             numCol++
@@ -39,11 +48,43 @@ function create_table() {
     board.appendChild(table)
 }
 
+function check_letters(letters_chosen) {
+    let index = answers[letters_chosen[0].dataset.row][letters_chosen[0].dataset.column] 
+    let found=false
+
+    let word = words[index]
+    if (word && letters_chosen.length==word.length) { found = true }
+    let i=1
+    console.log(index,word)
+    while (found==true && i<letters_chosen.length){
+        let r = parseInt(letters_chosen[i].dataset.row)
+        let c = parseInt(letters_chosen[i].dataset.column)
+        if (answers[r][c]!==index){
+            found=false
+        }
+        i++
+    }
+
+    if (found==true){
+        letters_chosen.forEach((letter) => {
+            letter.classList.add('found')
+            letter.disabled = true
+        })
+        words_list.children[index].classList.add('word-found')
+        letters_chosen = []
+        console.log(letters_chosen)
+    }
+
+    console.log(letters_chosen)
+    console.log(found)
+    return letters_chosen
+}
+
 async function place_words() {
-    const words = await get_words()
+    words = await get_words()
     create_table()
     let removed_words = []
-    words.forEach((word) => {
+    words.forEach((word,i) => {
         let counter = 0
         const options = ['vertical']
         if (word.length<numCols+1) {
@@ -56,7 +97,7 @@ async function place_words() {
         while (available==false){
             let option = options[Math.floor(Math.random()*len)]
             let start_pos = find_start_pos(word, option)
-            let empty = check_placement(word,option,start_pos)
+            let empty = check_placement(word,option,start_pos,i)
 
             if (empty==true){
                 available=true
@@ -114,7 +155,7 @@ function find_start_pos(word, option){
     return start_pos
 }
 
-function check_placement(word,option,start_pos){
+function check_placement(word,option,start_pos,index){
     let empty = true
     let x = start_pos[1]
     let y = start_pos[0]
@@ -130,9 +171,9 @@ function check_placement(word,option,start_pos){
             let i = (direction==0 ? 0 : word.length-1)
             for (let x=start_pos[1];x<word.length+start_pos[1];x++){
                 let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
-                next.style.backgroundColor = direction==0 ? 'yellow' : 'grey'
                 next.textContent = word[i]
                 matrix[y][x] = word[i]
+                answers[y][x] = index
                 direction==0 ? i++ : i--
             }
         }
@@ -147,10 +188,9 @@ function check_placement(word,option,start_pos){
             let i = (direction==0 ? 0 : word.length-1)
             for (let y=start_pos[0];y<word.length+start_pos[0];y++) {
                 let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
-
-                next.style.backgroundColor = (direction==0 ? 'pink' : 'plum' )
                 next.textContent = word[i]
                 matrix[y][x] = word[i]
+                answers[y][x] = index
                 direction==0 ? i++ : i--
             }
         }
@@ -167,9 +207,9 @@ function check_placement(word,option,start_pos){
             let x = start_pos[1]
             for (let y=start_pos[0];y<word.length+start_pos[0];y++) {
                 let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
-                next.style.backgroundColor=(direction==0 ? 'green' : 'orange')
                 next.textContent = word[i]
                 matrix[y][x] = word[i]
+                answers[y][x] = index
                 direction==0 ? i++ : i--
                 x++
             }
@@ -190,6 +230,7 @@ function place_random_letters() {
     
         if (letter.textContent == '') {
             letter.textContent = rand
+            answers[numRow][numCol] = -1
         } else {
             rand = letter.textContent
         }
@@ -210,6 +251,7 @@ function place_random_letters() {
         }
     }
     console.log(matrix)
+    console.log(answers)
 }
 
 async function get_words() {
@@ -238,7 +280,6 @@ async function get_words() {
 }
 
 function place_words_list(spliced_words) {
-    console.log(spliced_words)
     words_list.innerHTML = ''
     spliced_words.forEach((word,i) => {
         const word_item = document.createElement('li')
@@ -257,7 +298,10 @@ const numCols = 10
 
 document.documentElement.style.setProperty('--cols',`${'auto '.repeat(numCols)}`)
 
+let words
 let matrix = []
+let answers = []
+let letters_chosen = []
 
 for (let x=0;x<numRows;x++){
     let row = []
@@ -265,6 +309,7 @@ for (let x=0;x<numRows;x++){
         row.push([])
     }
     matrix.push(row)
+    answers.push(row)
 }
 
 gen_btn.addEventListener('click', () => {

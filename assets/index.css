@@ -31,6 +31,14 @@
     border: 1px solid black;
     border-radius: 5px;
     padding: 5px;
+
+    -webkit-touch-callout: none; 
+    -webkit-user-select: none; 
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none; 
+ 
 }
 
 .letter:hover{
@@ -40,4 +48,17 @@
 
 .clicked {
     background-color: grey;
+}
+
+.selected{
+    background-color: yellow;
+}
+
+.found{
+    background-color: plum;
+}
+
+.word-found{
+    color: green;
+    text-decoration:line-through;
 }
