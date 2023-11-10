@@ -6,26 +6,18 @@ function create_table() {
     let numCol = 0
     let table = document.createElement('table')
     let tr = document.createElement('tr')
-    letters_chosen = []
+
     for (let i=0; i<(numRows*numCols); i++){
         let letter = document.createElement('td')
         letter.className = `letter ${i}`
 
-        letter.addEventListener('click', () => {
-            letter.classList.toggle('selected')
-            if (letter.classList.contains('selected')){
-                letters_chosen.push(letter)
-            } else {
-                letters_chosen.splice(letters_chosen.indexOf(letter),1)
-            }
-            if (letters_chosen.length>0){
-                letters_chosen = check_letters(letters_chosen)
-            }
+        letter.addEventListener(('click'), () => {
+            letters_chosen = select_letter(letter,letters_chosen)
         })
 
         if (i == 0 || i % numCols == 0) {
             rowCount = [1]
-            // letter.classList.add(`row${numRow}`, `col${numCol}`)
+            letter.classList.add(`row${numRow}`, `col${numCol}`)
             letter.dataset.row = numRow
             letter.dataset.column = numCol
             numCol++
@@ -33,7 +25,7 @@ function create_table() {
         } 
         else if (i % numCols > 0) {
             rowCount.push(1)
-            // letter.classList.add( `row${numRow}`, `col${numCol}`)
+            letter.classList.add( `row${numRow}`, `col${numCol}`)
             letter.dataset.row = numRow
             letter.dataset.column = numCol
             numCol++
@@ -48,14 +40,29 @@ function create_table() {
     board.appendChild(table)
 }
 
+function select_letter(letter,letters_chosen){
+    letter.classList.toggle('selected')
+            
+    if (letter.classList.contains('selected') && !letter.classList.contains('found')){
+        letters_chosen.push(letter)
+    } else if (!letter.classList.contains('selected') || letter.classList.contains('found')){
+        let idx = letters_chosen.indexOf(letter)
+        if (idx != -1) { letters_chosen.splice(letters_chosen.indexOf(letter),1) }
+    }
+    if (letters_chosen.length>0){
+        letters_chosen = check_letters(letters_chosen)
+    }
+    
+    return letters_chosen
+}
+
 function check_letters(letters_chosen) {
     let index = answers[letters_chosen[0].dataset.row][letters_chosen[0].dataset.column] 
     let found=false
-
     let word = words[index]
     if (word && letters_chosen.length==word.length) { found = true }
     let i=1
-    console.log(index,word)
+
     while (found==true && i<letters_chosen.length){
         let r = parseInt(letters_chosen[i].dataset.row)
         let c = parseInt(letters_chosen[i].dataset.column)
@@ -72,11 +79,8 @@ function check_letters(letters_chosen) {
         })
         words_list.children[index].classList.add('word-found')
         letters_chosen = []
-        console.log(letters_chosen)
     }
 
-    console.log(letters_chosen)
-    console.log(found)
     return letters_chosen
 }
 
@@ -84,7 +88,8 @@ async function place_words() {
     words = await get_words()
     create_table()
     let removed_words = []
-    words.forEach((word,i) => {
+    let i = 0
+    words.forEach((word) => {
         let counter = 0
         const options = ['vertical']
         if (word.length<numCols+1) {
@@ -100,6 +105,7 @@ async function place_words() {
             let empty = check_placement(word,option,start_pos,i)
 
             if (empty==true){
+                i++
                 available=true
             } else if (counter>50){
                 let index = words.indexOf(word)
@@ -113,6 +119,7 @@ async function place_words() {
     for (let i=0;i<removed_words.length;i++){
         words.splice(removed_words[i],1)
     }
+    console.log(words)
     place_words_list(words)
     place_random_letters()
 }
@@ -173,7 +180,13 @@ function check_placement(word,option,start_pos,index){
                 let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
                 next.textContent = word[i]
                 matrix[y][x] = word[i]
-                answers[y][x] = index
+
+                if (answers.some(row => row.includes(index-1))){
+                    answers[y][x] = index
+                } else {
+                    answers[y][x] = index-1
+                }
+
                 direction==0 ? i++ : i--
             }
         }
@@ -190,7 +203,13 @@ function check_placement(word,option,start_pos,index){
                 let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
                 next.textContent = word[i]
                 matrix[y][x] = word[i]
-                answers[y][x] = index
+
+                if (answers.some(row => row.includes(index-1))){
+                    answers[y][x] = index
+                } else {
+                    answers[y][x] = index-1
+                }
+
                 direction==0 ? i++ : i--
             }
         }
@@ -209,7 +228,13 @@ function check_placement(word,option,start_pos,index){
                 let next = document.querySelector(`[data-row="${y}"][data-column="${x}"]`)
                 next.textContent = word[i]
                 matrix[y][x] = word[i]
-                answers[y][x] = index
+
+                if (answers.some(row => row.includes(index-1))){
+                    answers[y][x] = index
+                } else {
+                    answers[y][x] = index-1
+                }
+
                 direction==0 ? i++ : i--
                 x++
             }
@@ -265,7 +290,7 @@ async function get_words() {
     let words_length = 0
     let num_words = 0
     let i = 0
-    let words = []
+    words = []
 
     while (num_words < (numCols+numRows)/2 && i<data.length){
         const word = data[i].word

@@ -58,6 +58,10 @@
     background-color: plum;
 }
 
+.found:hover{
+    background-color: plum;
+}
+
 .word-found{
     color: green;
     text-decoration:line-through;
