@@ -83,14 +83,31 @@ function check_letters(letters_chosen) {
             letter.disabled = true
         })
         words_list.children[index].classList.add('word-found')
-        let curr_score = parseInt(score_span.textContent[0])+1
-        score_span.textContent = `${curr_score}/${words.length}`
+        let curr_score = parseInt(ws_score_span.textContent[0])+1
+        ws_score_span.textContent = `${curr_score}/${words.length}`
         if (curr_score == words.length){
-            console.log('completed')
+            finish()
         }
     }
 
     return letters_chosen
+}
+
+function finish() {
+    score = JSON.parse(score)+words.length
+    localStorage.setItem('score', JSON.stringify(score))
+    msg.textContent = `You have completed the wordsearch!`
+    const shuffle_btn = document.createElement('button')
+    shuffle_btn.textContent = 'Shuffle'
+    shuffle_btn.className = 'shuffle-btn'
+    shuffle_btn.addEventListener('click', () => {
+        let form_data = new FormData(form)
+        let topic = form_data.get('topic')
+        if (topic) {place_words(topic)}
+        msg.textContent = ""
+        msg_container.remove(shuffle_btn)
+    })
+    msg_container.appendChild(shuffle_btn)
 }
 
 async function place_words(topic) {
@@ -128,7 +145,8 @@ async function place_words(topic) {
     for (let i=0;i<removed_words.length;i++){
         words.splice(removed_words[i],1)
     }
-    score_span.textContent = `0/${words.length}`
+    total_score_span.textContent = `Total score: ${score}`
+    ws_score_span.textContent = `0/${words.length}`
     console.log(words)
     place_words_list(words)
     place_random_letters()
@@ -340,10 +358,14 @@ const board = document.getElementById('board')
 const gen_btn = document.getElementById('gen-btn')
 const words_list = document.getElementById('words-list')
 
-const score_span = document.querySelector('#score')
+const total_score_span = document.querySelector('#total-score')
+const ws_score_span = document.querySelector('#ws-score')
+const msg_container = document.querySelector('#message-container')
+const msg = document.querySelector('.message')
 
 const numRows = 10
 const numCols = 10
+let score = localStorage.getItem('score') || 0
 
 document.documentElement.style.setProperty('--cols',`${'auto '.repeat(numCols)}`)
 

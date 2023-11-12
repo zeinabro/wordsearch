@@ -22,9 +22,19 @@
 }
 
 #score-container{
+    display: grid;
+    padding-top: 10px;
+    text-align: center;
+}
+
+#message-container{
     display: flex;
-    justify-content: center; 
+    justify-content: center;
     padding: 10px;
+}
+
+.shuffle-btn{
+    margin-left: 5px;
 }
 
 .gen-btn-container{
@@ -38,8 +48,7 @@
     border: 1px solid black;
     border-radius: 5px;
     padding: 5px;
-
-    -webkit-touch-callout: none; 
+ 
     -webkit-user-select: none; 
     -khtml-user-select: none;
     -moz-user-select: none;
@@ -54,23 +63,23 @@
 }
 
 .selected{
-    background-color: yellow;
+    background-color: #94d6d0b1;
 }
 
 .selected:hover{
-    background-color: yellow;
+    background-color: #94d6d0b1;
 }
 
 .found{
-    background-color: plum;
+    background-color: rgb(243, 202, 243);
 }
 
 .found:hover{
-    background-color: plum;
+    background-color: rgb(243, 202, 243);
 }
 
 .word-found{
-    color: green;
+    color: #1a535c;
     text-decoration:line-through;
 }
 
@@ -78,4 +87,21 @@
     display: flex;
     justify-content: center;
     padding: 10px;
+}
+
+button {
+    border-radius: 10px;
+    border: 1.5px solid #1a535c;
+    /* background-color: #4ecdc4; */
+    background-color: #94d6d0b1;
+}
+
+button:hover{
+    background-color: rgb(243, 202, 243);
+    border-color: #e148d9;
+}
+
+#words-list-container{
+    display: flex;
+    align-items: center;
 }
