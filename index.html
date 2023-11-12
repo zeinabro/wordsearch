@@ -11,16 +11,28 @@
     <div class="title">
         WORDSEARCH
     </div>
+    <div id="form-container">
+        <form action="submit" id="topic-form">
+            <label for="topic">Enter a topic:</label>
+            <input type="text" id="input-topic" name="topic">
+            <button id="gen-btn" type="submit">
+                Generate Board
+            </button>
+            <button id="rand-btn" type="button">
+                Random
+            </button>
+        </form>
+    </div>
     <section id="content">
         <div id="board-container">
             <div id="board">
 
             </div>  
-            <div class="gen-btn-container">
+            <!-- <div class="gen-btn-container">
                 <button id="gen-btn">
                     Generate Board
                 </button>
-            </div>          
+            </div>           -->
         </div>
 
         <div id="words-list-container">

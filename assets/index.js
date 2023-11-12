@@ -84,8 +84,8 @@ function check_letters(letters_chosen) {
     return letters_chosen
 }
 
-async function place_words() {
-    words = await get_words()
+async function place_words(topic) {
+    words = await get_words(topic)
     create_table()
     let removed_words = []
     let i = 0
@@ -279,13 +279,18 @@ function place_random_letters() {
     console.log(answers)
 }
 
-async function get_words() {
+async function get_words(topic) {
     //https://api.datamuse.com/words
 
-    let topic = 'intelligent'
-
+    if (!topic) {
+        const resp = await fetch('https://random-word-api.herokuapp.com/word')
+        topic = await resp.json()
+    }
     const resp =  await fetch(`https://api.datamuse.com/words?ml=${topic}`)
     const data = await resp.json()
+
+    const input_field = document.querySelector('#input-topic')
+    input_field.value = topic
 
     let words_length = 0
     let num_words = 0
@@ -337,7 +342,15 @@ for (let x=0;x<numRows;x++){
     answers.push(row)
 }
 
-gen_btn.addEventListener('click', () => {
+const form = document.querySelector('#topic-form')
+form.addEventListener('submit', (e) => {
+    e.preventDefault()
+    let form_data = new FormData(form)
+    let topic = form_data.get('topic')
+    if (topic) {place_words(topic)}
+})
+
+const rand_btn = document.querySelector('#rand-btn')
+rand_btn.addEventListener('click', () => {
     place_words()
 })
-place_words()
