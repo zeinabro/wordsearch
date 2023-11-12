@@ -18,6 +18,13 @@
     grid-template-columns: var(--cols);
     width: max-content;
     border-radius: 4px;
+    padding-top: 5px;
+}
+
+#score-container{
+    display: flex;
+    justify-content: center; 
+    padding: 10px;
 }
 
 .gen-btn-container{
@@ -46,11 +53,11 @@
     background-color: rgba(128, 128, 128, 0.703);
 }
 
-.clicked {
-    background-color: grey;
+.selected{
+    background-color: yellow;
 }
 
-.selected{
+.selected:hover{
     background-color: yellow;
 }
 

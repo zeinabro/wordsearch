@@ -42,6 +42,10 @@ function create_table() {
 
 function select_letter(letter,letters_chosen){
     letter.classList.toggle('selected')
+
+    if (letters_chosen.some(letter => letter.classList.contains('found'))){
+        letters_chosen = []
+    }
             
     if (letter.classList.contains('selected') && !letter.classList.contains('found')){
         letters_chosen.push(letter)
@@ -49,10 +53,11 @@ function select_letter(letter,letters_chosen){
         let idx = letters_chosen.indexOf(letter)
         if (idx != -1) { letters_chosen.splice(letters_chosen.indexOf(letter),1) }
     }
+    
     if (letters_chosen.length>0){
         letters_chosen = check_letters(letters_chosen)
     }
-    
+
     return letters_chosen
 }
 
@@ -78,7 +83,11 @@ function check_letters(letters_chosen) {
             letter.disabled = true
         })
         words_list.children[index].classList.add('word-found')
-        letters_chosen = []
+        let curr_score = parseInt(score_span.textContent[0])+1
+        score_span.textContent = `${curr_score}/${words.length}`
+        if (curr_score == words.length){
+            console.log('completed')
+        }
     }
 
     return letters_chosen
@@ -119,6 +128,7 @@ async function place_words(topic) {
     for (let i=0;i<removed_words.length;i++){
         words.splice(removed_words[i],1)
     }
+    score_span.textContent = `0/${words.length}`
     console.log(words)
     place_words_list(words)
     place_random_letters()
@@ -181,9 +191,9 @@ function check_placement(word,option,start_pos,index){
                 next.textContent = word[i]
                 matrix[y][x] = word[i]
 
-                if (answers.some(row => row.includes(index-1))){
+                if (index==0 || answers.some(row => row.includes(index-1))){
                     answers[y][x] = index
-                } else {
+                } else if (index>0 && !answers.some(row => row.includes(index-1))){
                     answers[y][x] = index-1
                 }
 
@@ -204,9 +214,9 @@ function check_placement(word,option,start_pos,index){
                 next.textContent = word[i]
                 matrix[y][x] = word[i]
 
-                if (answers.some(row => row.includes(index-1))){
+                if (index==0 || answers.some(row => row.includes(index-1))){
                     answers[y][x] = index
-                } else {
+                } else if (index>0 && !answers.some(row => row.includes(index-1))){
                     answers[y][x] = index-1
                 }
 
@@ -229,9 +239,9 @@ function check_placement(word,option,start_pos,index){
                 next.textContent = word[i]
                 matrix[y][x] = word[i]
 
-                if (answers.some(row => row.includes(index-1))){
+                if (index==0 || answers.some(row => row.includes(index-1))){
                     answers[y][x] = index
-                } else {
+                } else if (index>0 && !answers.some(row => row.includes(index-1))){
                     answers[y][x] = index-1
                 }
 
@@ -282,9 +292,14 @@ function place_random_letters() {
 async function get_words(topic) {
     //https://api.datamuse.com/words
 
-    if (!topic) {
-        const resp = await fetch('https://random-word-api.herokuapp.com/word')
-        topic = await resp.json()
+    while (!topic) {
+        // const resp = await fetch('https://random-word-api.herokuapp.com/word')
+        // const data = await resp.json()
+        // if (data.length < (numRows+numCols)/2){
+        //     topic = data
+        // }
+        const random_words = ['cat','dog','harry potter','hunger games','red','school','gaming','reading','snake']
+        topic = random_words[Math.floor(Math.random()*random_words.length)]
     }
     const resp =  await fetch(`https://api.datamuse.com/words?ml=${topic}`)
     const data = await resp.json()
@@ -299,14 +314,16 @@ async function get_words(topic) {
 
     while (num_words < (numCols+numRows)/2 && i<data.length){
         const word = data[i].word
-        if (!word.includes(' ') && !word.includes('-') && word.length<numCols && word.length<numRows){
+        if (!word.includes(' ') && !word.includes('-') && word.length<numCols && word.length<numRows && word.length>2){
             words_length += (word.length)
             num_words++
             words.push(word.toUpperCase())           
         }
         i++  
     }
-    return words
+    if (words.length > 1)
+    { return words }
+    else { get_words() }
 }
 
 function place_words_list(spliced_words) {
@@ -322,6 +339,8 @@ function place_words_list(spliced_words) {
 const board = document.getElementById('board')
 const gen_btn = document.getElementById('gen-btn')
 const words_list = document.getElementById('words-list')
+
+const score_span = document.querySelector('#score')
 
 const numRows = 10
 const numCols = 10
