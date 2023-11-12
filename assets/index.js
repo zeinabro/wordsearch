@@ -96,6 +96,7 @@ function check_letters(letters_chosen) {
 function finish() {
     score = JSON.parse(score)+words.length
     localStorage.setItem('score', JSON.stringify(score))
+    total_score_span = `Total score: ${score}`
     msg.textContent = `You have completed the wordsearch!`
     const shuffle_btn = document.createElement('button')
     shuffle_btn.textContent = 'Shuffle'
