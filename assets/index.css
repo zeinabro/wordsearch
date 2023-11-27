@@ -105,3 +105,12 @@ button:hover{
     display: flex;
     align-items: center;
 }
+
+.buttons {
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+}
+.buttons button {
+   margin-left: 5px;
+}

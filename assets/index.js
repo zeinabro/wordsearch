@@ -94,9 +94,9 @@ function check_letters(letters_chosen) {
 }
 
 function finish() {
+    total_score_span.textContent = `Total score: ${parseInt(score)+words.length}`
     score = JSON.parse(score)+words.length
     localStorage.setItem('score', JSON.stringify(score))
-    total_score_span = `Total score: ${score}`
     msg.textContent = `You have completed the wordsearch!`
     const shuffle_btn = document.createElement('button')
     shuffle_btn.textContent = 'Shuffle'
@@ -105,8 +105,9 @@ function finish() {
         let form_data = new FormData(form)
         let topic = form_data.get('topic')
         if (topic) {place_words(topic)}
+        curr_score = 0
         msg.textContent = ""
-        msg_container.remove(shuffle_btn)
+        shuffle_btn.remove()
     })
     msg_container.appendChild(shuffle_btn)
 }
@@ -251,6 +252,7 @@ function check_placement(word,option,start_pos,index){
             empty = (next_tile && next_tile.textContent=="") ? true : false
         }
         if (empty){
+            console.log(word,'DIAGONAL')
             let i = (direction==0 ? 0 : word.length-1)
             let x = start_pos[1]
             for (let y=start_pos[0];y<word.length+start_pos[0];y++) {
@@ -261,6 +263,7 @@ function check_placement(word,option,start_pos,index){
                 if (index==0 || answers.some(row => row.includes(index-1))){
                     answers[y][x] = index
                 } else if (index>0 && !answers.some(row => row.includes(index-1))){
+                    console.log(answers[y][x],index-1)
                     answers[y][x] = index-1
                 }
 
@@ -359,7 +362,7 @@ const board = document.getElementById('board')
 const gen_btn = document.getElementById('gen-btn')
 const words_list = document.getElementById('words-list')
 
-const total_score_span = document.querySelector('#total-score')
+let total_score_span = document.querySelector('#total-score')
 const ws_score_span = document.querySelector('#ws-score')
 const msg_container = document.querySelector('#message-container')
 const msg = document.querySelector('.message')
