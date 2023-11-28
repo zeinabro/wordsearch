@@ -114,3 +114,16 @@ button:hover{
 .buttons button {
    margin-left: 5px;
 }
+
+#timer{
+    display: flex;
+    justify-content: center;
+}
+
+.hidden{
+    visibility: hidden;
+}
+
+.disabled {
+    pointer-events: none;
+}

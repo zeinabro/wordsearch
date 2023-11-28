@@ -38,6 +38,12 @@ function create_table() {
         tr.appendChild(letter)
     }
     board.appendChild(table)
+
+    let timeInMinutes = (numCols>numRows ? numCols : numRows)/2
+    let currentTime = Date.parse(new Date())
+    let timer_limit = new Date(currentTime + timeInMinutes*60*1000)
+
+    timer = initTimer(timer_limit)
 }
 
 function select_letter(letter,letters_chosen){
@@ -86,19 +92,24 @@ function check_letters(letters_chosen) {
         let curr_score = parseInt(ws_score_span.textContent[0])+1
         ws_score_span.textContent = `${curr_score}/${words.length}`
         if (curr_score == words.length){
-            finish()
+            finish('W')
         }
     }
 
     return letters_chosen
 }
 
-function finish() {
-    total_score_span.textContent = `Total score: ${parseInt(score)+words.length}`
-    score = JSON.parse(score)+words.length
-    localStorage.setItem('score', JSON.stringify(score))
-    msg.textContent = `You have completed the wordsearch!`
-    const shuffle_btn = document.createElement('button')
+function finish(outcome) {
+    if (outcome == 'W') {
+        total_score_span.textContent = `Total score: ${parseInt(score)+words.length}`
+        msg.textContent = `You have completed the wordsearch!`
+        score = JSON.parse(score)+words.length
+        localStorage.setItem('score', JSON.stringify(score))
+    } else if (outcome == 'L') {
+        msg.textContent = 'You ran out of time!'
+        disable_board()
+    }
+
     shuffle_btn.textContent = 'Shuffle'
     shuffle_btn.className = 'shuffle-btn'
     shuffle_btn.addEventListener('click', () => {
@@ -112,8 +123,55 @@ function finish() {
     msg_container.appendChild(shuffle_btn)
 }
 
+function initTimer(limit) {
+    const colon = document.querySelector('.timer-colon')
+    colon.classList.remove('hidden')
+    const timer = document.getElementById('timer')
+    const mins_span = timer.querySelector('.minutes')
+    const seconds_span = timer.querySelector('.seconds')
+
+    function updateTimer() {
+        const t = timeLeft(limit)
+        mins_span.innerHTML = ('0' + t.minutes).slice(-2)
+        seconds_span.innerHTML = ('0' + t.seconds).slice(-2)
+
+        if (t.total <= 0) {
+            clearInterval(time_interval)
+            finish('L')
+        }
+    }
+
+    updateTimer()
+    const time_interval = setInterval(updateTimer, 1000)
+    return time_interval
+}
+
+function restartTimer(time_interval){
+    clearInterval(time_interval)
+}
+
+function timeLeft(limit) {
+    const total = Date.parse(limit) - Date.parse(new Date())
+    const seconds = Math.floor((total / 1000) % 60)
+    const minutes = Math.floor((total / 1000 / 60) % 60)
+    
+    return {
+      total,
+      minutes,
+      seconds
+    }
+}
+
+function disable_board() {
+    const letters = document.querySelectorAll('.letter')
+    for (let i=0;i<letters.length;i++){
+        letters[i].classList.add('disabled')
+    }
+}
+
 async function place_words(topic) {
     words = await get_words(topic)
+    restartTimer(timer)
     create_table()
     let removed_words = []
     let i = 0
@@ -252,7 +310,7 @@ function check_placement(word,option,start_pos,index){
             empty = (next_tile && next_tile.textContent=="") ? true : false
         }
         if (empty){
-            console.log(word,'DIAGONAL')
+            // console.log(word,'DIAGONAL')
             let i = (direction==0 ? 0 : word.length-1)
             let x = start_pos[1]
             for (let y=start_pos[0];y<word.length+start_pos[0];y++) {
@@ -263,7 +321,6 @@ function check_placement(word,option,start_pos,index){
                 if (index==0 || answers.some(row => row.includes(index-1))){
                     answers[y][x] = index
                 } else if (index>0 && !answers.some(row => row.includes(index-1))){
-                    console.log(answers[y][x],index-1)
                     answers[y][x] = index-1
                 }
 
@@ -314,6 +371,9 @@ function place_random_letters() {
 async function get_words(topic) {
     //https://api.datamuse.com/words
 
+    msg.textContent = ""
+    shuffle_btn.remove()
+
     while (!topic) {
         // const resp = await fetch('https://random-word-api.herokuapp.com/word')
         // const data = await resp.json()
@@ -362,6 +422,8 @@ const board = document.getElementById('board')
 const gen_btn = document.getElementById('gen-btn')
 const words_list = document.getElementById('words-list')
 
+const shuffle_btn = document.createElement('button')
+
 let total_score_span = document.querySelector('#total-score')
 const ws_score_span = document.querySelector('#ws-score')
 const msg_container = document.querySelector('#message-container')
@@ -372,6 +434,8 @@ const numCols = 10
 let score = localStorage.getItem('score') || 0
 
 document.documentElement.style.setProperty('--cols',`${'auto '.repeat(numCols)}`)
+
+let timer
 
 let words
 let matrix = []
