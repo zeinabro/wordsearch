@@ -39,7 +39,6 @@ function create_table() {
     }
     board.appendChild(table)
 
-    let timeInMinutes = (numCols>numRows ? numCols : numRows)/2
     let currentTime = Date.parse(new Date())
     let timer_limit = new Date(currentTime + timeInMinutes*60*1000)
 
@@ -101,6 +100,7 @@ function check_letters(letters_chosen) {
 
 function finish(outcome) {
     if (outcome == 'W') {
+        pauseTimer(timer)
         total_score_span.textContent = `Total score: ${parseInt(score)+words.length}`
         msg.textContent = `You have completed the wordsearch!`
         score = JSON.parse(score)+words.length
@@ -139,6 +139,7 @@ function initTimer(limit) {
             clearInterval(time_interval)
             finish('L')
         }
+
     }
 
     updateTimer()
@@ -148,6 +149,10 @@ function initTimer(limit) {
 
 function restartTimer(time_interval){
     clearInterval(time_interval)
+}
+
+function pauseTimer(time_interval){
+    clearTimeout(time_interval)
 }
 
 function timeLeft(limit) {
@@ -436,6 +441,7 @@ let score = localStorage.getItem('score') || 0
 document.documentElement.style.setProperty('--cols',`${'auto '.repeat(numCols)}`)
 
 let timer
+let timeInMinutes = Math.floor((numCols>numRows ? numCols : numRows)/4)+1
 
 let words
 let matrix = []
