@@ -102,17 +102,22 @@ function finish(outcome) {
     if (outcome == 'W') {
         pauseTimer(timer)
         total_score_span.textContent = `Total score: ${parseInt(score)+words.length}`
+        msg_modal.classList.remove('hidden')
         msg.textContent = `You have completed the wordsearch!`
         score = JSON.parse(score)+words.length
+        msg_score.textContent = `Total score: ${score}`
         localStorage.setItem('score', JSON.stringify(score))
     } else if (outcome == 'L') {
+        msg_modal.classList.remove('hidden')
         msg.textContent = 'You ran out of time!'
+        msg_score.textContent = `Your total score is: ${parseInt(score)}`
         disable_board()
     }
 
     shuffle_btn.textContent = 'Shuffle'
-    shuffle_btn.className = 'shuffle-btn'
+    shuffle_btn.className = 'msg-button'
     shuffle_btn.addEventListener('click', () => {
+        msg_modal.classList.add('hidden')
         let form_data = new FormData(form)
         let topic = form_data.get('topic')
         if (topic) {place_words(topic)}
@@ -120,7 +125,15 @@ function finish(outcome) {
         msg.textContent = ""
         shuffle_btn.remove()
     })
-    msg_container.appendChild(shuffle_btn)
+
+    close_msg_btn.textContent = 'Close'
+    close_msg_btn.className = 'msg-button'
+    close_msg_btn.addEventListener('click', () => {
+        msg_modal.classList.add('hidden')
+        curr_score = 0
+    })
+
+    msg_buttons.append(shuffle_btn,close_msg_btn)
 }
 
 function initTimer(limit) {
@@ -428,11 +441,15 @@ const gen_btn = document.getElementById('gen-btn')
 const words_list = document.getElementById('words-list')
 
 const shuffle_btn = document.createElement('button')
+const close_msg_btn = document.createElement('button')
 
 let total_score_span = document.querySelector('#total-score')
 const ws_score_span = document.querySelector('#ws-score')
+const msg_modal = document.querySelector('#message-modal')
 const msg_container = document.querySelector('#message-container')
 const msg = document.querySelector('.message')
+const msg_score = document.querySelector('.msg-score')
+const msg_buttons = document.querySelector('.msg-buttons')
 
 const numRows = 10
 const numCols = 10

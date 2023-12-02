@@ -38,14 +38,39 @@ body{
     text-align: center;
 }
 
-#message-container{
-    display: flex;
-    justify-content: center;
-    padding: 10px;
+#message-modal{
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background:rgba(128, 128, 128, 0.546) ;
 }
 
-.shuffle-btn{
-    margin-left: 5px;
+#message-container{
+    padding: 10px;
+    position: absolute;
+    top:50%;
+    left: 50%;
+    transform: translate(-50%,-50%);
+    background-color: white;
+    padding: 10px;
+    border-radius: 15px;
+}
+
+#message-container span{
+    margin: 0 auto;
+    padding: 1px;
+}
+
+.msg-buttons{
+    display: flex;
+    justify-content: center;
+}
+
+.msg-button{
+    width: fit-content;
+    margin: 2px;
 }
 
 .gen-btn-container{
@@ -71,7 +96,6 @@ body{
 .letter:hover{
     cursor: pointer;
     background-color: rgba(128, 128, 128, 0.502)
-    
 }
 
 .selected{
@@ -126,7 +150,8 @@ button:hover{
 .buttons button {
    margin-left: 5px;
 }
-.buttons button:hover{
+
+button:hover{
     cursor: pointer;
 }
 
