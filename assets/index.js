@@ -124,8 +124,8 @@ function finish(outcome) {
 }
 
 function initTimer(limit) {
-    const colon = document.querySelector('.timer-colon')
-    colon.classList.remove('hidden')
+    const timer_div = document.querySelector('#timer')
+    timer_div.classList.remove('hidden')
     const timer = document.getElementById('timer')
     const mins_span = timer.querySelector('.minutes')
     const seconds_span = timer.querySelector('.seconds')

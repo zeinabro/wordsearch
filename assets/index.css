@@ -1,10 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Bagel+Fat+One&display=swap');
+
 :root{
     --cols: '----'
+}
+
+body{
+    background-image: url('bg.jpg');
+    background-position: 0px;
+    cursor: default;
 }
 
 .title{
     text-align: center;
     padding: 10px;
+    font-family: 'Bagel Fat One', sans-serif;
+    color: #d9526fc2;
+    font-size: 25px;
 }
 
 #content{
@@ -48,7 +59,7 @@
     border: 1px solid black;
     border-radius: 5px;
     padding: 5px;
- 
+    background-color: rgba(255, 255, 255, 0.621);
     -webkit-user-select: none; 
     -khtml-user-select: none;
     -moz-user-select: none;
@@ -59,7 +70,8 @@
 
 .letter:hover{
     cursor: pointer;
-    background-color: rgba(128, 128, 128, 0.703);
+    background-color: rgba(128, 128, 128, 0.502)
+    
 }
 
 .selected{
@@ -71,11 +83,11 @@
 }
 
 .found{
-    background-color: rgb(243, 202, 243);
+    background-color: #f4bfc9;
 }
 
 .found:hover{
-    background-color: rgb(243, 202, 243);
+    background-color: #f4bfc9;
 }
 
 .word-found{
@@ -92,13 +104,12 @@
 button {
     border-radius: 10px;
     border: 1.5px solid #1a535c;
-    /* background-color: #4ecdc4; */
     background-color: #94d6d0b1;
 }
 
 button:hover{
-    background-color: rgb(243, 202, 243);
-    border-color: #e148d9;
+    background-color: #f4bfc9;
+    border-color: #d9526f;
 }
 
 #words-list-container{
@@ -110,14 +121,26 @@ button:hover{
     display: flex;
     justify-content: center;
     padding: 10px;
+    padding-bottom: 0px;
 }
 .buttons button {
    margin-left: 5px;
 }
+.buttons button:hover{
+    cursor: pointer;
+}
 
 #timer{
     display: flex;
-    justify-content: center;
+    width: fit-content;
+    margin: 0 auto;
+    padding: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    border: 1.5px solid;
+    border-radius: 15px;
+    border-color: black;
+    background-color: rgba(255, 255, 255, 0.817);
 }
 
 .hidden{
